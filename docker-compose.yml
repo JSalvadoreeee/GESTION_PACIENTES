@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app-saludplus:
+    build:
+      context: ./gestion_pacientes/gestion_pacientes
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - saludplus-network
+
+networks:
+  saludplus-network:
+    driver: bridge
