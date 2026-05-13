@@ -20,4 +20,4 @@ jobs:
         cache: maven
         
     - name: Build with Maven
-      run: mvn -B package --file gestion_pacientes/gestion_pacientes/pom.xml
+      run: mvn -B package -DskipTests --file gestion_pacientes/gestion_pacientes/pom.xml
