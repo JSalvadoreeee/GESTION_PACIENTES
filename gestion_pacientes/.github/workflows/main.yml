@@ -1,0 +1,78 @@
+name: Pipeline CI/CD - Gestión de Pacientes
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    name: Compilar y Publicar en GHCR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compilar y empaquetar con Maven
+        run: |
+          cd gestion_pacientes
+          mvn clean package -DskipTests
+
+      - name: Iniciar sesión en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir y Subir Imagen Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: ./gestion_pacientes
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/gestion-pacientes:latest
+
+  deploy-to-aws:
+    name: Desplegar en Instancia AWS EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Instalar el Agente SSM de AWS de ser necesario e Iniciar la Instancia
+        run: |
+          aws ec2 start-instances --instance-ids ${{ vars.INSTANCE_ID }}
+          echo "Esperando a que el servidor esté completamente operativo..."
+          aws ec2 wait instance-status-ok --instance-ids ${{ vars.INSTANCE_ID }}
+
+      - name: Desplegar Aplicación vía AWS SSM (System Manager)
+        run: |
+          # Transferir el archivo docker-compose.yml a la máquina remota usando comandos SSM
+          # y levantar el contenedor usando la nueva imagen
+          COMMANDS='["sudo mkdir -p /app", "echo '"'"'$(cat docker-compose.yml)'"'"' | sudo tee /app/docker-compose.yml > /dev/null", "cd /app", "sudo docker-compose down || true", "sudo docker-compose pull", "sudo docker-compose up -d"]'
+          
+          aws ssm send-command \
+            --instance-ids "${{ vars.INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "commands=$COMMANDS" \
+            --comment "Desplegando la aplicación en el contenedor Docker"
