@@ -24,7 +24,7 @@ jobs:
           cache: maven
 
       - name: Compilar y empaquetar con Maven
-        working-directory: gestion_pacientes/gestion_pacientes
+        working-directory: ./gestion_pacientes
         run: |
           mvn clean package -DskipTests
 
@@ -38,7 +38,7 @@ jobs:
       - name: Construir y Subir Imagen Docker
         uses: docker/build-push-action@v5
         with:
-          context: ./gestion_pacientes/gestion_pacientes
+          context: ./gestion_pacientes
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/gestion-pacientes:latest
