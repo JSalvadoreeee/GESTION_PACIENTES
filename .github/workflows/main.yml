@@ -2,9 +2,9 @@ name: Pipeline de SaludPlus
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
         cache: maven
         
     - name: Build with Maven
-      run: mvn -B package -DskipTests --file gestion_pacientes/gestion_pacientes/pom.xml
+      run: mvn -B package -DskipTests
 
     - name: Run Snyk to check for vulnerabilities
       uses: snyk/actions/maven@master
@@ -30,4 +30,4 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t gestion-pacientes:latest -f gestion_pacientes/gestion_pacientes/Dockerfile gestion_pacientes/gestion_pacientes/
+        docker build -t gestion-pacientes:latest .
