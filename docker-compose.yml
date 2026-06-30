@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   gestion-pacientes-app:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/gestion-pacientes:latest
+    image: ghcr.io/jsalvadoreeee/gestion-pacientes:latest
     container_name: gestion-pacientes-contenedor
     ports:
       - "8081:8081"
