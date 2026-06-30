@@ -25,7 +25,7 @@ jobs:
 
       - name: Compilar y empaquetar con Maven
         run: |
-          cd gestion_pacientes
+          
           mvn clean package -DskipTests
 
       - name: Iniciar sesión en GitHub Container Registry
