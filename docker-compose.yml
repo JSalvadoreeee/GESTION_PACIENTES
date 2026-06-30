@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  gestion-pacientes-app:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/gestion-pacientes:latest
+    container_name: gestion-pacientes-contenedor
+    ports:
+      - "8081:8081"
+    restart: always
+    
+    # === REGISTRO DE AUDITORÍA Y TELEMETRÍA (REQUISITO PAUTA) ===
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-region: "us-east-1"
+        awslogs-group: "gestion-pacientes-logs"
+        awslogs-create-group: "true"
