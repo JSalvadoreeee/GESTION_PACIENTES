@@ -30,4 +30,4 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t gestion-pacientes:latest -f gestion_pacientes/gestion_pacientes/Dockerfile .
+        docker build -t gestion-pacientes:latest -f gestion_pacientes/gestion_pacientes/Dockerfile .2
