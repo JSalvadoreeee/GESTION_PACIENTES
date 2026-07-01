@@ -24,10 +24,10 @@ jobs:
 
     - name: Run Snyk to check for vulnerabilities
       uses: snyk/actions/maven@master
-      continue-on-error: true
+      # Se eliminó "continue-on-error: true" para cumplir con el IE6 (romper el pipeline ante fallas)
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
     - name: Build Docker Image
       run: |
-        docker build -t gestion-pacientes:latest .
+        docker build -t gestion-pacientes:latest -f gestion_pacientes/gestion_pacientes/Dockerfile .
