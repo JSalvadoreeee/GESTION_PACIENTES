@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Contenedor de la Base de Datos MySQL
+  # Servicio 1: La Base de Datos MySQL
   db-saludplus:
     image: mysql:8.0
     container_name: mysql_saludplus
@@ -18,7 +18,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Contenedor de tu API en Spring Boot
+  # Servicio 2: Tu aplicación de Spring Boot (SaludPlus)
   app-saludplus:
     build:
       context: ./gestion_pacientes
