@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gestion-pacientes
+---
+# === BASE DE DATOS MYSQL ===
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-db
+  namespace: gestion-pacientes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-db
+  template:
+    metadata:
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "saludplus_root"
+        - name: MYSQL_DATABASE
+          value: "db_paciente_service" # Mismo nombre que usa tu application.properties
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: gestion-pacientes
+spec:
+  selector:
+    app: mysql-db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+# === APLICACIÓN DE GESTIÓN DE PACIENTES ===
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-pacientes-app
+  namespace: gestion-pacientes
+  labels:
+    app: gestion-pacientes
+spec:
+  replicas: 3 # Alta disponibilidad requerida para el Examen Final
+  selector:
+    matchLabels:
+      app: gestion-pacientes
+  template:
+    metadata:
+      labels:
+        app: gestion-pacientes
+    spec:
+      containers:
+      - name: gestion-pacientes
+        # Reemplazarás con tu nombre de usuario de Docker Hub en la fase de pipeline
+        image: tu-usuario-dockerhub/gestion-pacientes:latest
+        ports:
+        - containerPort: 8081 # ¡CORREGIDO! Tu app escucha en el 8081
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/db_paciente_service?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "saludplus_root"
+        resources: # Requisito de la pauta para gobernanza de recursos
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gestion-pacientes-service
+  namespace: gestion-pacientes
+spec:
+  selector:
+    app: gestion-pacientes
+  ports:
+    - protocol: TCP
+      port: 8081 # ¡CORREGIDO! El servicio apunta internamente al 8081
+      targetPort: 8081
+  type: ClusterIP # Se mantiene oculto porque Istio controlará el tráfico desde internet
