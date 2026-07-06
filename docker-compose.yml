@@ -1,12 +1,38 @@
 version: '3.8'
 
 services:
+  # Contenedor de la Base de Datos MySQL
+  db-saludplus:
+    image: mysql:8.0
+    container_name: mysql_saludplus
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: saludplus_db
+    ports:
+      - "3306:3306"
+    networks:
+      - saludplus-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Contenedor de tu API en Spring Boot
   app-saludplus:
     build:
-      context: ./gestion_pacientes/gestion_pacientes
+      context: ./gestion_pacientes
       dockerfile: Dockerfile
+    container_name: api_saludplus
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db-saludplus:3306/saludplus_db?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    depends_on:
+      db-saludplus:
+        condition: service_healthy
     networks:
       - saludplus-network
 
