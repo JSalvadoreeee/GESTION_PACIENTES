@@ -23,6 +23,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Dar permisos de ejecución al Maven Wrapper
+        working-directory: gestion_pacientes
+        run: chmod +x mvnw
+
       - name: Compilar, testear y empaquetar con Maven
         working-directory: gestion_pacientes
         run: |
@@ -45,4 +49,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/gestion_pacientes:${{ github.sha }}
-            ghcr.io/${{ env.OWNER_LC }}/gestion_pacientes:latest0
+            ghcr.io/${{ env.OWNER_LC }}/gestion_pacientes:latest
