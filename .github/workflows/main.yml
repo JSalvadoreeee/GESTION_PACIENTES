@@ -24,11 +24,11 @@ jobs:
           cache: maven
 
       - name: Dar permisos de ejecución al Maven Wrapper
-        working-directory: gestion_pacientes
+        working-directory: gestion_pacientes/gestion_pacientes
         run: chmod +x mvnw
 
       - name: Compilar, testear y empaquetar con Maven
-        working-directory: gestion_pacientes
+        working-directory: gestion_pacientes/gestion_pacientes
         run: |
           ./mvnw clean test package
 
@@ -45,7 +45,7 @@ jobs:
       - name: Build y push de la imagen Docker (versionada)
         uses: docker/build-push-action@v5
         with:
-          context: ./gestion_pacientes
+          context: ./gestion_pacientes/gestion_pacientes
           push: true
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/gestion_pacientes:${{ github.sha }}
