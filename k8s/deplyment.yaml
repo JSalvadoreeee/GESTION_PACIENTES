@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: gestion-pacientes
-        # ¡CORREGIDO! Apuesta directa a tu paquete real e impecable de GHCR en minúsculas
+        
         image: ghcr.io/jsalvadoreeee/gestion_pacientes:latest
         ports:
         - containerPort: 8081
@@ -82,7 +82,7 @@ spec:
             cpu: "250m"
             memory: "256Mi"
         
-        # === ¡NUEVO REQUISITO: SONDAS DE SALUD Y DISPONIBILIDAD (IE4) ===
+        # SONDAS DE SALUD Y DISPONIBILIDAD (IE4)
         livenessProbe:
           httpGet:
             path: /actuator/health
